@@ -1,6 +1,6 @@
 Greetings!
 
-This notebook contains a demo for using a research prototype implementation of two deletion efficient k-means algorithms, Q-k-means and DC-k-means.
+This notebook contains a demo for using a research prototype implementation of two deletion efficient k-means algorithms and DC-k-means.
 
 import numpy as np
 import matplotlib.pyplot as plt
