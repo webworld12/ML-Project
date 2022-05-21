@@ -1,0 +1,74 @@
+Greetings!
+
+This notebook contains a demo for using a research prototype implementation of two deletion efficient k-means algorithms, Q-k-means and DC-k-means.
+
+import numpy as np
+import matplotlib.pyplot as plt
+from del_eff_kmeans import Kmeans, QKmeans, DCKmeans
+import time
+First, let's generate a simple dataset based on a Gaussian mixture. Let's assume we have three clusters.
+
+k = 3
+n1 = 5*10**2
+n2 = 5*10**2
+n3 = 8*10**2
+n = n1 + n2 + n3
+cov = [[0.05,0],[0,0.05]]
+def sample_gmm():
+    cluster1 = np.random.multivariate_normal([2,0], cov , n1)
+    cluster2 = np.random.multivariate_normal([0,2], cov , n2)
+    cluster3 = np.random.multivariate_normal([-1.5,-1.5], cov , n3)
+    return np.vstack((cluster1,cluster2,cluster3))
+
+data = sample_gmm()
+plt.scatter(data[:,0],data[:,1])
+plt.show()
+I bet you can guess where each center will end up!
+
+Let's run the algorithms. First up is classic k-means++!
+
+def show_clustering(centers,assignments,data):
+    colors = ['r','b','g']
+    for a in [0,1,2]:
+        data_a = data[assignments == a]
+        plt.scatter(data_a[:,0],data_a[:,1])
+        plt.scatter(centers[a,0],centers[a,1],marker='x',color='k')
+    plt.show()
+kmeans = Kmeans(k)
+centers, assignments, loss = kmeans.run(data.copy())
+print(f'Clustering loss is {loss}')
+show_clustering(centers, assignments, data)
+Did you get what you expected? Remember that k-means isn't guaranteed to converge to a global minimum! You might want to run the above cell again if you think the algorithm got stuck in a bad local minimum.
+
+Finally we've got DC-k-means. Let's split up the data into 16 buckets.
+
+#first parameter is a list of k's for sub-problems at each layer
+#second parameter is the number of buckets for each layer
+dckmeans = DCKmeans([k,k],[1,16])
+centers, assignments, loss = dckmeans.run(data.copy(),assignments=True)
+print(f'Clustering loss is {loss}')
+show_clustering(centers, assignments, data)
+These three methods should be produce fairly similar clusters (unless one happened to get stuck in a bad local minimum).
+
+Now we can see how quickly the methods can process a sequence of 20 deletion requests!
+
+def online_deletion_stream(num_dels,model):
+    t0 = time.time()
+    c = 1
+    for _ in range(num_dels):
+        dr = np.random.choice(model.n,size=1)[0]
+        print(f'processing deletion request # {c}...')
+        model.delete(dr)
+        c += 1
+    t = time.time()
+    print(f'Total time to process {c-1} deletions is {t-t0}')
+For the k-means baseline, each we have to satisfy each "deletion" by re-training from scratch.
+
+print('Simulation deletion stream for kmeans')
+online_deletion_stream(20,kmeans)
+Let's see if we can get any speed-up from Q-k-means or DC-k-means using specialized deletion operations.
+
+print('Simulation deletion stream for qkmeans')
+online_deletion_stream(20,qkmeans)
+print('Simulation deletion stream for dckmeans')
+online_deletion_stream(20,dckmeans)
