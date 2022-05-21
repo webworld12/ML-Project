@@ -4,7 +4,7 @@ This notebook contains a demo for using a research prototype implementation of t
 
 import numpy as np
 import matplotlib.pyplot as plt
-from del_eff_kmeans import Kmeans, QKmeans, DCKmeans
+from del_eff_kmeans import Kmeans, DCKmeans
 import time
 First, let's generate a simple dataset based on a Gaussian mixture. Let's assume we have three clusters.
 
@@ -66,9 +66,7 @@ For the k-means baseline, each we have to satisfy each "deletion" by re-training
 
 print('Simulation deletion stream for kmeans')
 online_deletion_stream(20,kmeans)
-Let's see if we can get any speed-up from Q-k-means or DC-k-means using specialized deletion operations.
+Let's see if we can get any speed-up from DC-k-means using specialized deletion operations.
 
-print('Simulation deletion stream for qkmeans')
-online_deletion_stream(20,qkmeans)
 print('Simulation deletion stream for dckmeans')
 online_deletion_stream(20,dckmeans)
