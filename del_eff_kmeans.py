@@ -200,7 +200,6 @@ class DCnode(Kmeans):
 class DCKmeans():
     def __init__(self, ks, widths, iters=10):
         '''
-        Constructor for quantized k-means solved via Lloyd iterations
         ks - list of k parameter for each layer of DC-tree
         widths - list of width parameter (number of buckets) for each layer
         iters - # of iterations to run 
